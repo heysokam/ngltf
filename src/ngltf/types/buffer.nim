@@ -12,7 +12,7 @@ type BufferViewTarget *{.pure.}= enum
 
 type BufferView * = object
   ## A view into a buffer generally representing a subset of the buffer.
-  buffer      *:seq[GltfId]      ## The index of the buffer.
+  buffer      *:GltfId           ## The index of the buffer.
   byteOffset  *:uint32           ## The offset into the buffer in bytes.
   byteLength  *:uint32           ## The length of the bufferView in bytes.
   byteStride  *:uint32           ## The stride, in bytes.
@@ -20,6 +20,7 @@ type BufferView * = object
   name        *:string           ## The user-defined name of this object.
   extensions  *:Extension        ## JSON object with extension-specific objects.
   extras      *:Extras           ## Application-specific data.
+type BufferViews * = seq[BufferView]
 
 type Buffer * = object
   ## A buffer points to binary geometry, animation, or skins.
@@ -28,4 +29,5 @@ type Buffer * = object
   name        *:string           ## The user-defined name of this object.
   extensions  *:Extension        ## JSON object with extension-specific objects.
   extras      *:Extras           ## Application-specific data.
+type Buffers * = seq[Buffer]
 

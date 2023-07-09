@@ -14,17 +14,18 @@ type AnimationChannelTargetPath *{.pure.}= enum
 
 type AnimationChannelTarget * = object
   ## The descriptor of the animated property.
-  node        *:seq[GltfId]                           ## The index of the node to animate. When undefined, the animated object **MAY** be defined by an extension.
+  node        *:GltfId                                ## The index of the node to animate. When undefined, the animated object **MAY** be defined by an extension.
   path        *:AnimationChannelTargetPath            ## The name of the node's TRS property to animate, or the `"weights"` of the Morph Targets it instantiates. For the `"translation"` property, the values that are provided by the sampler are the translation along the X, Y, and Z axes. For the `"rotation"` property, the values are a quaternion in the order (x, y, z, w), where w is the scalar. For the `"scale"` property, the values are the scaling factors along the X, Y, and Z axes.
   extensions  *:Extension                             ## JSON object with extension-specific objects.
   extras      *:Extras                                ## Application-specific data.
 
 type AnimationChannel * = object
   ## An animation channel combines an animation sampler with a target property being animated.
-  sampler     *:seq[GltfId]                           ## The index of a sampler in this animation used to compute the value for the target.
-  target      *:seq[AnimationChannelTarget]           ## The descriptor of the animated property.
+  sampler     *:GltfId                                ## The index of a sampler in this animation used to compute the value for the target.
+  target      *:AnimationChannelTarget                ## The descriptor of the animated property.
   extensions  *:Extension                             ## JSON object with extension-specific objects.
   extras      *:Extras                                ## Application-specific data.
+type AnimationChannels * = seq[AnimationChannel]
 
 type AnimationSamplerInterpolation *{.pure.}= enum
   ## Interpolation algorithm.
@@ -34,11 +35,12 @@ type AnimationSamplerInterpolation *{.pure.}= enum
 
 type AnimationSampler * = object
   ## An animation sampler combines timestamps with a sequence of output values and defines an interpolation algorithm.
-  input               *:seq[GltfId]                   ## The index of an accessor containing keyframe timestamps.
+  input               *:GltfId                        ## The index of an accessor containing keyframe timestamps.
   interpolation       *:AnimationSamplerInterpolation ## Interpolation algorithm.
-  output              *:seq[GltfId]                   ## The index of an accessor, containing keyframe output values.
+  output              *:GltfId                        ## The index of an accessor, containing keyframe output values.
   extensions          *:Extension                     ## JSON object with extension-specific objects.
   extras              *:Extras                        ## Application-specific data.
+type AnimationSamplers * = seq[AnimationSampler]
 
 type Animation * = object
   ## A keyframe animation.
@@ -47,13 +49,15 @@ type Animation * = object
   name                *:string                        ## The user-defined name of this object.
   extensions          *:Extension                     ## JSON object with extension-specific objects.
   extras              *:Extras                        ## Application-specific data.
+type Animations * = seq[Animation]
 
 type Skin * = object
   ## Joints and matrices defining a skin.
-  inverseBindMatrices *:seq[GltfId]                   ## The index of the accessor containing the floating-point 4x4 inverse-bind matrices.
-  skeleton            *:seq[GltfId]                   ## The index of the node used as a skeleton root.
+  inverseBindMatrices *:GltfId                        ## The index of the accessor containing the floating-point 4x4 inverse-bind matrices.
+  skeleton            *:GltfId                        ## The index of the node used as a skeleton root.
   joints              *:seq[GltfId]                   ## Indices of skeleton nodes, used as joints in this skin.
   name                *:string                        ## The user-defined name of this object.
   extensions          *:Extension                     ## JSON object with extension-specific objects.
   extras              *:Extras                        ## Application-specific data.
+type Skins * = seq[Skin]
 

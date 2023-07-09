@@ -4,7 +4,6 @@
 # std dependencies
 import std/unittest
 import std/os
-import std/paths
 import std/strformat
 # Library dependencies
 import ngltf as gltf

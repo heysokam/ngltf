@@ -13,7 +13,7 @@ type AccessorSparseIndicesComponentType *{.pure.}= enum
 
 type AccessorSparseIndices * = object
   ## An object pointing to a buffer view containing the indices of deviating accessor values. The number of indices is equal to `accessor.sparse.count`. Indices **MUST** strictly increase.
-  bufferView     *:seq[GltfId]                        ## The index of the buffer view with sparse indices. The referenced buffer view **MUST NOT** have its `target` or `byteStride` properties defined. The buffer view and the optional `byteOffset` **MUST** be aligned to the `componentType` byte length.
+  bufferView     *:GltfId                             ## The index of the buffer view with sparse indices. The referenced buffer view **MUST NOT** have its `target` or `byteStride` properties defined. The buffer view and the optional `byteOffset` **MUST** be aligned to the `componentType` byte length.
   byteOffset     *:uint32                             ## The offset relative to the start of the buffer view in bytes.
   componentType  *:AccessorSparseIndicesComponentType ## The indices data type.
   extensions     *:Extension                          ## JSON object with extension-specific objects.
@@ -21,7 +21,7 @@ type AccessorSparseIndices * = object
 
 type AccessorSparseValues * = object
   ## An object pointing to a buffer view containing the deviating accessor values. The number of elements is equal to `accessor.sparse.count` times number of components. The elements have the same component type as the base accessor. The elements are tightly packed. Data **MUST** be aligned following the same rules as the base accessor.
-  bufferView     *:seq[GltfId]                        ## The index of the bufferView with sparse values. The referenced buffer view **MUST NOT** have its `target` or `byteStride` properties defined.
+  bufferView     *:GltfId                             ## The index of the bufferView with sparse values. The referenced buffer view **MUST NOT** have its `target` or `byteStride` properties defined.
   byteOffset     *:uint32                             ## The offset relative to the start of the bufferView in bytes.
   extensions     *:Extension                          ## JSON object with extension-specific objects.
   extras         *:Extras                             ## Application-specific data.
@@ -29,8 +29,8 @@ type AccessorSparseValues * = object
 type AccessorSparse * = object
   ## Sparse storage of accessor values that deviate from their initialization value.
   count          *:uint32                             ## Number of deviating accessor values stored in the sparse array.
-  indices        *:seq[AccessorSparseIndices]         ## An object pointing to a buffer view containing the indices of deviating accessor values. The number of indices is equal to `count`. Indices **MUST** strictly increase.
-  values         *:seq[AccessorSparseValues]          ## An object pointing to a buffer view containing the deviating accessor values.
+  indices        *:AccessorSparseIndices              ## An object pointing to a buffer view containing the indices of deviating accessor values. The number of indices is equal to `count`. Indices **MUST** strictly increase.
+  values         *:AccessorSparseValues               ## An object pointing to a buffer view containing the deviating accessor values.
   extensions     *:Extension                          ## JSON object with extension-specific objects.
   extras         *:Extras                             ## Application-specific data.
 
@@ -55,16 +55,17 @@ type AccessorType *{.pure.}= enum
 
 type Accessor * = object
   ## A typed view into a buffer view that contains raw binary data.
-  bufferView    *:seq[GltfId]           ## The index of the bufferView.
+  bufferView    *:GltfId                ## The index of the bufferView.
   byteOffset    *:uint32                ## The offset relative to the start of the buffer view in bytes.
   componentType *:AccessorComponentType ## The datatype of the accessor's components.
   normalized    *:bool                  ## Specifies whether integer data values are normalized before usage.
   count         *:uint32                ## The number of elements referenced by this accessor.
-  `type`        *:AccessorType          ## Specifies if the accessor's elements are scalars, vectors, or matrices.
-  `max`         *:seq[float64]          ## Maximum value of each component in this accessor.
-  `min`         *:seq[float64]          ## Minimum value of each component in this accessor.
-  sparse        *:seq[AccessorSparse]   ## Sparse storage of elements that deviate from their initialization value.
+  typ           *:AccessorType          ## Specifies if the accessor's elements are scalars, vectors, or matrices.
+  maxv          *:seq[float64]          ## Maximum value of each component in this accessor.
+  minv          *:seq[float64]          ## Minimum value of each component in this accessor.
+  sparse        *:AccessorSparse        ## Sparse storage of elements that deviate from their initialization value.
   name          *:string                ## The user-defined name of this object.
   extensions    *:Extension             ## JSON object with extension-specific objects.
   extras        *:Extras                ## Application-specific data.
+type Accessors * = seq[Accessor]
 

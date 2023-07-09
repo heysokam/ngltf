@@ -21,15 +21,15 @@ type MinFilter *{.pure.}= enum
 
 type WrapS *{.pure.}= enum
   ## S (U) wrapping mode.
+  Repeat                 = 10497 ## REPEAT
   ClampToEdge            = 33071 ## CLAMP_TO_EDGE
   MirroredRepeat         = 33648 ## MIRRORED_REPEAT
-  Repeat                 = 10497 ## REPEAT
 
 type WrapT *{.pure.}= enum
   ## T (V) wrapping mode.
+  Repeat                 = 10497 ## REPEAT
   ClampToEdge            = 33071 ## CLAMP_TO_EDGE
   MirroredRepeat         = 33648 ## MIRRORED_REPEAT
-  Repeat                 = 10497 ## REPEAT
 
 type Sampler * = object
   ## Texture sampler properties for filtering and wrapping modes.
@@ -40,4 +40,5 @@ type Sampler * = object
   name        *:string        ## The user-defined name of this object.
   extensions  *:Extension     ## JSON object with extension-specific objects.
   extras      *:Extras        ## Application-specific data.
+type Samplers * = seq[Sampler]
 

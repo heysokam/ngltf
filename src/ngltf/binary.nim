@@ -8,7 +8,7 @@ import pkg/flatty/binny
 # ndk dependencies
 import ./paths
 # ngltf dependencies
-import ./binary
+import ./types/binary
 
 
 #_______________________________________
