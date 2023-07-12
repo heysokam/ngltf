@@ -3,6 +3,7 @@
 #:_____________________________________________________
 # std dependencies
 import std/sets
+import std/paths
 # ngltf dependencies
 import ./base
 import ./other
@@ -18,6 +19,7 @@ import ./texture
 
 type Gltf * = ref object
   ## The root object for a glTF asset.
+  rootDir            *:Path            ## Root folder where the GLTF is loaded from
   extensionsUsed     *:HashSet[string] ## Names of glTF extensions used in this asset.
   extensionsRequired *:HashSet[string] ## Names of glTF extensions required to properly load this asset.
   accessors          *:seq[Accessor]   ## An array of accessors.
@@ -28,10 +30,10 @@ type Gltf * = ref object
   cameras            *:seq[Camera]     ## An array of cameras.
   images             *:seq[Image]      ## An array of images.
   materials          *:seq[Material]   ## An array of materials.
-  meshes             *:seq[Mesh]       ## An array of meshes.
+  models             *:seq[Model]      ## An array of models. (spec.meshes)
   nodes              *:seq[Node]       ## An array of nodes.
   samplers           *:seq[Sampler]    ## An array of samplers.
-  sceneID            *:GltfId          ## The index of the default scene.
+  sceneID            *:SceneID         ## The index of the default scene.
   scenes             *:seq[Scene]      ## An array of scenes.
   skins              *:seq[Skin]       ## An array of skins.
   textures           *:seq[Texture]    ## An array of textures.

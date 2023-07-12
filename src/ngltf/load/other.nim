@@ -31,15 +31,15 @@ func get *(json :JsonNode; _:typedesc[Nodes]) :Nodes=
   ## Raises an exception if the node has no version field (required by spec)
   for node in json["nodes"].elems:
     var tmp :Node
-    if node.hasCamera:   tmp.camera     = node["camera"].getInt.GltfId
-    if node.hasChildren: tmp.children   = node["children"].get(GltfIdList)
-    if node.hasSkin:     tmp.skin       = node["skin"].getInt.GltfId
-    tmp.matrix = if node.hasMatrix: node["matrix"].getMatrix4 else: Matrix4.identity()
-    if node.hasMesh:     tmp.mesh       = node["mesh"].getInt.GltfId
-    tmp.rotation    = if node.hasRotation: node["rotation"].getVector4 else: [0'f64, 0, 0, 1]
-    tmp.scale       = if node.hasScale:    node["scale"].getVector3    else: [1'f64, 1, 1]
-    tmp.translation = if node.hasTranslation: node["translation"].getVector3 else: [0'f64, 0, 0]
-    if node.hasWeights:  tmp.weights    = node["weights"].get(Float64List)
+    tmp.camera      = if node.hasCamera:      node["camera"].getInt.GltfId     else: GltfId(-1)
+    tmp.children    = if node.hasChildren:    node["children"].get(GltfIdList) else: @[]
+    tmp.skin        = if node.hasSkin:        node["skin"].getInt.GltfId       else: GltfId(-1)
+    tmp.matrix      = if node.hasMatrix:      node["matrix"].getMatrix4        else: Matrix4.identity()
+    tmp.mesh        = if node.hasMesh:        node["mesh"].getInt.GltfId       else: GltfId(-1)
+    tmp.rotation    = if node.hasRotation:    node["rotation"].getVector4      else: [0'f64, 0, 0, 1]
+    tmp.scale       = if node.hasScale:       node["scale"].getVector3         else: [1'f64, 1, 1]
+    tmp.translation = if node.hasTranslation: node["translation"].getVector3   else: [0'f64, 0, 0]
+    tmp.weights     = if node.hasWeights:     node["weights"].get(Float64List) else: @[]
     if node.hasName:     tmp.name       = node["name"].getStr()
     if node.hasExtJson:  tmp.extensions = node.get(Extension)
     if node.hasExtras:   tmp.extras     = node.get(Extras)

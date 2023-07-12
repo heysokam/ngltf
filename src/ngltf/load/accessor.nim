@@ -64,7 +64,7 @@ func get *(json :JsonNode; _:typedesc[Accessors]) :Accessors=
     if not accs.hasType:          raise newException(ImportError, "Tried to get accessor data from a JsonNode that doesn't contain a type field (required by spec).")
     # Get the data for this accessor
     var tmp :Accessor
-    if accs.hasBufferView: tmp.bufferView = accs["bufferView"].getInt().GltfId
+    tmp.bufferView = if accs.hasBufferView: accs["bufferView"].getInt().GltfId else: GltfId(-1)
     if accs.hasByteOffset: tmp.byteOffset = accs["byteOffset"].getInt().uint32
     tmp.componentType = accs["componentType"].getInt().AccessorComponentType
     if accs.hasNormalized: tmp.normalized = accs["normalized"].getBool()

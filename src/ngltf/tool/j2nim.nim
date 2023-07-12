@@ -1,6 +1,10 @@
 #:_____________________________________________________
 #  ngltf  |  Copyright (C) Ivan Mar (sOkam!)  |  MIT  |
 #:_____________________________________________________
+# Not intended for general use at all.                 |________
+# Helper for generating the Nim types from the gltf spec.       |
+# It was only used once for parsing the gltf spec json schema.  |
+#_______________________________________________________________|
 # std dependencies
 import std/os
 import std/sugar

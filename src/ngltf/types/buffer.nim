@@ -21,13 +21,15 @@ type BufferView * = object
   extensions  *:Extension        ## JSON object with extension-specific objects.
   extras      *:Extras           ## Application-specific data.
 type BufferViews * = seq[BufferView]
+func offset *(view :BufferView) :uint32=  view.byteOffset
 
 type Buffer * = object
   ## A buffer points to binary geometry, animation, or skins.
-  uri         *:string           ## The URI (or IRI) of the buffer.
+  uri         *:URI              ## The URI (or IRI) of the buffer.
   byteLength  *:uint32           ## The length of the buffer in bytes.
   name        *:string           ## The user-defined name of this object.
   extensions  *:Extension        ## JSON object with extension-specific objects.
   extras      *:Extras           ## Application-specific data.
+  data        *:ByteBuffer       ## ngltf.Extend -> Object containing the buffer's byte data
 type Buffers * = seq[Buffer]
 

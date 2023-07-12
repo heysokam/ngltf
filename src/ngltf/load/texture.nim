@@ -4,13 +4,49 @@
 # std dependencies
 import std/strutils
 import std/json as stdjson
+import std/base64
+import std/mimetypes
 # ngltf dependencies
 import ../types/base
 import ../types/texture
+import ../types/gltf
+import ../tool/paths
+import ../validate
 import ./base
+import ./buffer
+
 
 
 #_______________________________________
+# Binary Data
+#_____________________________
+proc get *(img :Image; _:typedesc[ByteBuffer]; dir :Path; gltf :GLTF) :ByteBuffer=
+  ## Returns the ByteBuffer of the given `img` Image.
+  ## Searches for its binary data file relative to `dir` when relevant.
+  new result
+  # Get the data from the gltf.buffer pointed by the bufferView
+  if img.hasBufferView:
+    let view        = gltf.bufferViews[ img.bufferView ]
+    result.bytes    = gltf.buffers.getData(view)
+    result.mimetype = img.uri.string
+    if not validate.areSameLength(gltf.buffers[view.buffer], result): raise newException(ImportError, "Tried to load Image data from {img.uri.string}\n  ...but the resulting bytebuffer has a length different than the one declared in the input Image object.")
+  # Get the data from the base64 uri
+  elif img.uri.isData():
+    let split       = img.uri.string.split(";base64,")
+    result.mimetype = split[0].replace("data:", "")
+    result.bytes    = base64.decode( split[1] )
+  # Get the data from the file
+  elif img.uri.isFile():
+    if not fileExists( dir/img.uri.string.Path ): raise newException(ImportError, "Tried to load Image data from {dir/img.uri.string}, but the file does not exist.")
+    result.mimetype = newMimetypes().getMimetype( img.uri.string.Path.splitFile.ext )
+    result.bytes    = readFile( dir/img.uri.string.Path )
+  # Data couldn't be found
+  else: raise newException(ImportError, "Tried to load Image data from:\n  {img.uri.string}\n  ...but the input has an unknown or invalid URI format.")
+
+
+#_______________________________________
+# Json Data
+#_____________________________
 func get *(json :JsonNode; _:typedesc[Images]) :Images=
   ## Gets the Images list data contained in the given json node.
   ## Raises an ImportError exception if the fields required by spec are not there.
@@ -20,14 +56,14 @@ func get *(json :JsonNode; _:typedesc[Images]) :Images=
     if img.hasBufferView and not img.hasMimetype: raise newException(ImportError, "Tried to get Image data from a node that contains a bufferView field, but is missing its mimeType field (required by spec).")
     # Get the data for this Image
     var tmp :Image
-    if img.hasURI:        tmp.uri        = img["uri"].getStr()
-    if img.hasMimetype:   tmp.mimeType   = parseEnum[ImageMimeType]( img["mimeType"].getStr() )
-    if img.hasBufferView: tmp.bufferView = img["bufferView"].getInt.GltfId
-    if img.hasName:       tmp.name       = img["name"].getStr()
-    if img.hasExtJson:    tmp.extensions = img.get(Extension)
-    if img.hasExtras:     tmp.extras     = img.get(Extras)
+    tmp.bufferView = if img.hasBufferView: img["bufferView"].getInt.GltfId else: GltfId(-1)
+    if img.hasURI:      tmp.uri        = img["uri"].getStr().URI
+    if img.hasMimetype: tmp.mimeType   = parseEnum[ImageMimeType]( img["mimeType"].getStr() )
+    if img.hasName:     tmp.name       = img["name"].getStr()
+    if img.hasExtJson:  tmp.extensions = img.get(Extension)
+    if img.hasExtras:   tmp.extras     = img.get(Extras)
     result.add tmp
-#_______________________________________
+#_____________________________
 func get *(json :JsonNode; _:typedesc[TextureInfo]) :TextureInfo=
   ## Gets the TextureInfo data contained in the given json node.
   ## Raises an ImportError exception if the fields required by spec are not there.
@@ -36,14 +72,14 @@ func get *(json :JsonNode; _:typedesc[TextureInfo]) :TextureInfo=
   if json.hasTexCoord: result.texCoord   = json["texCoord"].getInt.uint32
   if json.hasExtJson:  result.extensions = json.get(Extension)
   if json.hasExtras:   result.extras     = json.get(Extras)
-#_______________________________________
+#_____________________________
 func get *(json :JsonNode; _:typedesc[Textures]) :Textures=
   ## Gets the Textures list data contained in the given json node.
   ## Raises an ImportError exception if the fields required by spec are not there.
   for tex in json["textures"].elems:
     var tmp :Texture
-    if tex.hasSampler: tmp.sampler    = tex["sampler"].getInt.GltfId
-    if tex.hasSource:  tmp.source     = tex["source"].getInt.GltfId
+    tmp.sampler = if tex.hasSampler: tex["sampler"].getInt.GltfId else: GltfId(-1)
+    tmp.source  = if tex.hasSource:  tex["source"].getInt.GltfId  else: GltfId(-1)
     if tex.hasName:    tmp.name       = tex["name"].getStr()
     if tex.hasExtJson: tmp.extensions = tex.get(Extension)
     if tex.hasExtras:  tmp.extras     = tex.get(Extras)

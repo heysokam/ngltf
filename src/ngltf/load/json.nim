@@ -4,7 +4,7 @@
 # std dependencies
 import std/json as stdjson
 # ngltf dependencies
-import ../paths
+import ../tool/paths
 import ../validate
 import ../types
 import ../types/base
@@ -31,14 +31,19 @@ import ./sampler
 
 
 #_____________________________________________________
+proc readData (gltf :var GLTF) :void=
+  ## Reads the bytebuffer data pointed by the gltf file.
+  ## Stores the data into their corresponding slots, taking it from uri.readFile and/or base64 embedded data
+  for buf in gltf.buffers.mitems: buf.data = buf.get(ByteBuffer, gltf.rootDir)
+  for img in gltf.images.mitems:  img.data = img.get(ByteBuffer, gltf.rootDir, gltf)
+#_____________________________________________________
 proc gltf *(buffer :string; dir :Path) :GLTF=
   ## Loads a GLTF object from a string bytebuffer.
   ## Doesn't do any checks, assumes that the input buffer contains a `.gltf` json.
   let json = buffer.parseJson
-  if not json.hasAsset: raise newException(ImportError, "Tried to load a GLTF object, but the input bytebuffer.json object doesn't have an asset field (required by spec).")
-  for key,val in json:
-    echo key
+  validate(json)
   new result
+  result.rootDir = dir
   if json.hasExtUsed     : result.extensionsUsed     = json.getUsed(Extension)
   if json.hasExtReq      : result.extensionsRequired = json.getReq(Extension)
   if json.hasAccessors   : result.accessors          = json.get(Accessors)
@@ -49,7 +54,7 @@ proc gltf *(buffer :string; dir :Path) :GLTF=
   if json.hasCameras     : result.cameras            = json.get(Cameras)
   if json.hasImages      : result.images             = json.get(Images)
   if json.hasMaterials   : result.materials          = json.get(Materials)
-  if json.hasMeshes      : result.meshes             = json.get(Meshes)
+  if json.hasModels      : result.models             = json.get(Models)
   if json.hasNodes       : result.nodes              = json.get(Nodes)
   if json.hasSamplers    : result.samplers           = json.get(Samplers)
   if json.hasSceneID     : result.sceneID            = json.get(SceneID)
@@ -58,20 +63,10 @@ proc gltf *(buffer :string; dir :Path) :GLTF=
   if json.hasTextures    : result.textures           = json.get(Textures)
   if json.hasExtJson     : result.extensions         = json.get(Extension)
   if json.hasExtras      : result.extras             = json.get(Extras)
+  # Get the bytebuffer data into their corresponding slots
+  result.readData()
 #_____________________________________________________
 proc gltf *(file :Path) :GLTF=  file.readFile.gltf( file.splitFile.dir.Path )
   ## Loads a gltf object from the given file path.
   ## Doesn't do any checks, assumes that the input is a `.gltf` json.
-
-#_____________________________________________________
-proc model *(buffer :string; dir :Path) :Model=
-  ## Loads a Model object from a string bytebuffer.
-  ## Doesn't do any checks, assumes that the input buffer contains a `.gltf` json.
-  new result
-  let gltfData = buffer.gltf(dir)
-#_____________________________________________________
-proc model *(file :Path) :Model=
-  ## Loads a Model object from the given file path.
-  ## Doesn't do any checks, assumes that the input is a `.gltf` json.
-  file.readFile.model( file.splitFile.dir.Path )
 

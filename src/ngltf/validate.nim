@@ -5,49 +5,129 @@
 import std/os
 import std/strformat
 import std/strutils
+import std/tables
 import std/json as stdjson
 # External dependencies
 import nmath
 # ndk dependencies
-import ./paths
+import ./tool/paths
 # ngltf dependencies
 import ./types
+import ./types/base
+import ./types/buffer
+import ./types/accessor
+import ./types/texture
+import ./types/mesh
 from   ./types/binary as bin import nil
-import ./binary as b
+
 
 #_________________________________________________
-proc header *(input :string|Path) :bool=
-  ## Validates that the input string or path contains a valid glTF file header.
-  if input.len < bin.HeaderSize: return false
-  let header = b.header(input)
-  result =
-    header.magic   == bin.Magic and
-    header.version == bin.Version and
-    header.length > 0
-#_________________________________________________
-proc json *(input :string) :bool=
-  ## Validates the given input bytebuffer containing a json object.
-  ## Checks that the json has an "asset" and "asset/version" keys, and that the contained version is compatible with the loader.
-  let root = input.parseJson
-  result =
-    root.hasKey("asset") and
-    root["asset"].hasKey("version") and
-    root["asset"]["version"].getStr.parseFloat() == bin.Version.float
+# GLTF
+#_____________________________
+proc validate *(header :bin.Header; length :SomeInteger) :void {.inline.}=
+  ## Validates that the given header meets all of the required conditions to be a valid glTF header.
+  const Magic = bin.Magic
+  if not header.magic      == bin.Magic:   raise newException(ImportError, &"\n  Tried to load a glTF file, but its Magic value ({header.magic}) does not match the glTF specification (should be {Magic}).")
+  if not header.version    == bin.Version: raise newException(ImportError, &"\n  Tried to load a glTF file, but support for version {header.version} is not implemented in ngltf.")
+  if not header.length     >  0:           raise newException(ImportError, &"\n  Tried to load a glTF file, but the length declared in its header is {header.length} and it should be bigger than 0 instead.")
+  if not header.length.int == length.int:  raise newException(ImportError, &"\n  Tried to load a glTF file, but the length declared in its header ({header.length}) does not match the given length sent for validation ({length}).")
+#_____________________________
+proc validate *(gltf :JsonNode) :void {.inline.}=
+  ## Validates that the given json node contains the fields required to be a valid glTF json object.
+  ## Checks that the json has an "asset" and "asset/version" keys, and that the contained version is compatible with ngltf.
+  if not gltf.hasKey("asset"):            raise newException(ImportError, "\n  Tried to load a glTF json file, but the given json doesn't have an asset field (required by spec).")
+  if not gltf["asset"].hasKey("version"): raise newException(ImportError, "\n  Tried to load a glTF json file, but the given json doesn't have a version field (required by spec).")
+  if not (gltf["asset"]["version"].getStr.parseFloat() == bin.Version.float):
+    raise newException(ImportError, &"\n  Tried to load a glTF json file, but the given node contains an invalid version.")
+#_____________________________
+proc validate *(chunk :Chunk) :void {.inline.}=
+  ## Validates that the given input chunk is valid.
+  if not chunk.length.int == chunk.data.len: raise newException(ImportError, "\n  Tried to load a Chunk from a GLB binary, but its resulting length is different than the one declared in its chunkLength field.")
+#_____________________________
+proc chunkIDjson *(id :SomeInteger) :void {.inline.}=
+  ## Checks that the given id correctly identifies a GltfJson chunk.
+  if not id.uint32 == bin.ChunkIDjson: raise newException(ImportError, &"\n  Tried to load a glTF binary file, but the json chunk id {id} is incorrect (should be {ChunkIDjson})")
+proc chunkIDdata *(id :SomeInteger) :void {.inline.}=
+  ## Checks that the given id correctly identifies a GltfData chunk.
+  if not id.uint32 == bin.ChunkIDdata: raise newException(ImportError, &"\n  Tried to load a glTF binary file, but the data chunk id {id} is incorrect (should be {ChunkIDdata})")
+#_____________________________
+func isData  *(uri :URI) :bool=  uri.string.startsWith("data:")
+  ## Checks if the given uri string is pointing to a data container.
+func isFile  *(uri :URI) :bool=  uri.string.splitFile.ext in ValidFileExtensions
+  ## Checks if the given uri string is pointing to a file.
+func isChunk *(uri :URI) :bool=  uri == UriBufferGLB
+  ## Checks if the given uri string is signaling to our custom identifier for GLB.DataChunk.Buffer.
+#_____________________________
+proc isGLTF *(path :Path) :void=
+  ## Checks that the given path contains a valid gltf file.
+  if not (path.splitFile.ext in ValidGltfFileExtensions): raise newException(ImportError, &"\n  Tried to load glTF from file {path.string}, but it has an incorrect extension (valid options {ValidGltfFileExtensions}).")
 
 #_________________________________________________
-proc isGLTF *(input :string|Path) :bool=
-  ## Returns true if the input passes all checks for being a valid glTF file
-  ## Interprets the input as a bytebuffer if it doesn't pass the `isFile` check. Otherwise it reads the file and validates its contents.
-  if input.isFile():
-    let ext = input.splitFile.ext
-    case ext
-    of ".glb":  return validate.header(input.readFile)
-    of ".gltf": return validate.json(input.readFile)
-    else: raise newException(ImportError, &"Tried to read file {input.string}, but {ext} it is not a valid glTF extension.")
-  return validate.header(input)
+# Buffer
+#_____________________________
+func areSameLength *(buf :Buffer; bbuf :ByteBuffer) :bool=  buf.byteLength == bbuf.bytes.len.uint32
+  ## Returns true if the `buf` Buffer has the same length as the `bbuf` ByteBuffer
+func sameLength *(buf :Buffer; bbuf :ByteBuffer) :void=
+  ## Checks that the `buf` Buffer has the same length as the `bbuf` ByteBuffer
+  if not areSameLength(buf, bbuf): raise newException(ImportError, "Tried to load Buffer data from {buf.uri}\n  ...but the resulting bytebuffer has a length ({buf.byteLength}) different than the one declared in the input Buffer object ({bbuf.bytes.len}).")
+func sameLength *(bbuf :ByteBuffer; buf :Buffer) :void=  sameLength( buf, bbuf )
+  ## Checks that the `buf` Buffer has the same length as the `bbuf` ByteBuffer
+func sameLength *(acc :Accessor; view :BufferView) :void=
+  ## Checks that the given `acc` Accessor defines data that has the same size than the data contained in the buffer portion pointed by the given `view` BufferView.
+  if not (acc.size == view.byteLength):  raise newException(ImportError, &"\n  Tried to access a BufferView from an Accessor that defines data of a size ({acc.size()}) which does not match the bufferView.byteLength ({view.byteLength}).")
+func sameLength *(view :BufferView; acc :Accessor) :void=  sameLength( acc, view )
+  ## Checks that the given `acc` Accessor defines data that has the same size than the data contained in the buffer portion pointed by the given `view` BufferView.
 
 #_________________________________________________
-# Data/Content
+# Texture
+#_____________________________
+func hasBufferView *(img :Image) :bool=  img.bufferView >= 0
+  ## Checks if the given `img` has an active bufferView id
+  ## A negative GltfId means the view is inactive.
+
+#_________________________________________________
+# Mesh
+#_____________________________
+func hasAttr *(mesh :Mesh; key :MeshAttribute) :bool=  mesh.attributes.hasKey( $key )
+  ## Returns true if the given primitive contains the given attribute.
+func hasAttr *(meshes :Meshes; key :MeshAttribute) :bool=
+  ## Returns true if all of the given primitives contain the given attribute.
+  for mesh in meshes:
+    if not mesh.hasAttr(key): return false
+  return true
+#_____________________________
+func hasPositions *(mesh :Mesh)  :void=
+  if not mesh.hasAttr( MeshAttribute.pos ): raise newException(ImportError, "\n  Tried to load a Mesh (spec.MeshPrimtive) that has no vertex position information.")
+func hasPositions *(mdl  :Model) :void=
+  if not mdl.meshes.hasAttr( MeshAttribute.pos ): raise newException(ImportError, "\n  Tried to load a Model (spec.Mesh) that has no vertex position information in one or more of its meshes (spec.primitives).")
+#_____________________________
+func hasUVs       *(mdl  :Model) :bool=  mdl.meshes.hasAttr( MeshAttribute.uv )
+func hasUVs       *(mesh :Mesh)  :bool=  mesh.hasAttr( MeshAttribute.uv )
+func hasNormals   *(mdl  :Model) :bool=  mdl.meshes.hasAttr( MeshAttribute.norm )
+func hasNormals   *(mesh :Mesh)  :bool=  mesh.hasAttr( MeshAttribute.norm )
+func hasColors    *(mdl  :Model) :bool=  mdl.meshes.hasAttr( MeshAttribute.color )
+func hasColors    *(mesh :Mesh)  :bool=  mesh.hasAttr( MeshAttribute.color )
+func hasIndices   *(mesh :Mesh)  :bool=  mesh.indices  >= 0
+func hasMaterial  *(mesh :Mesh)  :bool=  mesh.material >= 0
+#_____________________________
+func onlyTriangles *(mesh :Mesh) :void=
+  ## Checks that the given primitive contains Triangles. Raises an ImportError exception otherwise
+  ## ngltf does not support non-Triangle data for Data objects.
+  ## If you need other types of primitives, get the raw glTF object from the internal functions and extract the information from there.
+  if not (mesh.mode == MeshType.Triangles): raise newException(ImportError, &"""
+  Tried to get MeshData from a Mesh that contains non-Triangle primitives.
+  ngltf does not support non-Triangle data.
+  Get the raw gltf object and extract its contents directly if you need other types of primitives.""")
+#_____________________________
+func onlyTriangles *(mdl :Model) :void=
+  ## Checks that all of the meshes in the given list contain only Triangles. Raises an ImportError exception otherwise.
+  ## ngltf does not support non-Triangle data for Data objects.
+  ## If you need other types of primitives, get the raw glTF object from the internal functions and extract the information from there.
+  for mesh in mdl.meshes: mesh.onlyTriangles()
+
+
+#_________________________________________________
+# Json Entries
 #_____________________________
 # Base
 func hasBoth          *(json :JsonNode; k1,k2 :string) :bool=  json.hasKey(k1) and json.hasKey(k2)
@@ -73,7 +153,7 @@ func hasBufferViews   *(json :JsonNode) :bool=  json.hasKey("bufferViews")
 func hasCameras       *(json :JsonNode) :bool=  json.hasKey("cameras")
 func hasImages        *(json :JsonNode) :bool=  json.hasKey("images")
 func hasMaterials     *(json :JsonNode) :bool=  json.hasKey("materials")
-func hasMeshes        *(json :JsonNode) :bool=  json.hasKey("meshes")
+func hasModels        *(json :JsonNode) :bool=  json.hasKey("meshes")
 func hasNodes         *(json :JsonNode) :bool=  json.hasKey("nodes")
 func hasSamplers      *(json :JsonNode) :bool=  json.hasKey("samplers")
 func hasSceneID       *(json :JsonNode) :bool=  json.hasKey("scene")
@@ -144,7 +224,7 @@ func hasDoubleSided   *(json :JsonNode) :bool=  json.hasKey("doubleSided")
 #_____________________________
 # Mesh
 func hasAttributes    *(json :JsonNode) :bool=  json.hasKey("attributes")
-func hasPrimitives    *(json :JsonNode) :bool=  json.hasKey("primitives")
+func hasMeshes        *(json :JsonNode) :bool=  json.hasKey("primitives")
 func hasMaterial      *(json :JsonNode) :bool=  json.hasKey("material")
 func hasMode          *(json :JsonNode) :bool=  json.hasKey("mode")
 func hasTargets       *(json :JsonNode) :bool=  json.hasKey("targets")

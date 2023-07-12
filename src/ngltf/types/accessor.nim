@@ -34,6 +34,7 @@ type AccessorSparse * = object
   extensions     *:Extension                          ## JSON object with extension-specific objects.
   extras         *:Extras                             ## Application-specific data.
 
+#_______________________________________
 type AccessorComponentType *{.pure.}= enum
   ## The datatype of the accessor's components.
   `Byte`        = 5120  ## BYTE
@@ -42,7 +43,20 @@ type AccessorComponentType *{.pure.}= enum
   UnsignedShort = 5123  ## UNSIGNED_SHORT
   UnsignedInt   = 5125  ## UNSIGNED_INT
   Float         = 5126  ## FLOAT
+#_____________________________
+func toBytes *(n :SomeInteger) :uint32=  assert (n mod 8) == 0; result = uint32( n div 8 )
+  ## Returns the given multiple of 8 divided by 8 (eg: 8bits == 1byte)
+func size *(typ :AccessorComponentType) :uint32=
+  ## Returns the size in bytes 
+  case typ
+  of AccessorComponentType.`Byte`        :  8.toBytes
+  of AccessorComponentType.UnsignedByte  :  8.toBytes
+  of AccessorComponentType.Short         : 16.toBytes
+  of AccessorComponentType.UnsignedShort : 16.toBytes
+  of AccessorComponentType.UnsignedInt   : 32.toBytes
+  of AccessorComponentType.Float         : 32.toBytes
 
+#_______________________________________
 type AccessorType *{.pure.}= enum
   ## Specifies if the accessor's elements are scalars, vectors, or matrices.
   Scalar = "SCALAR"
@@ -52,7 +66,19 @@ type AccessorType *{.pure.}= enum
   Mat2   = "MAT2"
   Mat3   = "MAT3"
   Mat4   = "MAT4"
+#_____________________________
+func count *(typ :AccessorType) :uint32=
+  ## Returns the amount of components identified by an accessor of the given type.
+  case typ
+  of AccessorType.Scalar :   1
+  of AccessorType.Vec2   :   2
+  of AccessorType.Vec3   :   3
+  of AccessorType.Vec4   :   4
+  of AccessorType.Mat2   : 2*2
+  of AccessorType.Mat3   : 3*3
+  of AccessorType.Mat4   : 4*4
 
+#_______________________________________
 type Accessor * = object
   ## A typed view into a buffer view that contains raw binary data.
   bufferView    *:GltfId                ## The index of the bufferView.
@@ -68,4 +94,11 @@ type Accessor * = object
   extensions    *:Extension             ## JSON object with extension-specific objects.
   extras        *:Extras                ## Application-specific data.
 type Accessors * = seq[Accessor]
+#_____________________________
+func itemSize *(acc :Accessor) :uint32=  acc.componentType.size() * acc.typ.count()
+  ## Returns the size in bytes of each of the items identified by the accessor.
+func size *(acc :Accessor) :uint32=  acc.itemSize() * acc.count
+  ## Returns the total size in bytes of the data identified by the accessor.
+func offset *(acc :Accessor) :uint32=  acc.byteOffset
+  ## Returns the byte offset of the accessor.
 

@@ -17,7 +17,7 @@ func get *(json :JsonNode; _:typedesc[AnimationChannelTarget]) :AnimationChannel
   # Validate the fields required to exist by spec
   if not json.hasPath: raise newException(ImportError, "Tried to load AnimationChannelTarget data from a json node that doesn't have a path field (required by spec).")
   # Get the data for this AnimationChannelTarget
-  if json.hasNode: result.node = json["node"].getInt().GltfId
+  result.node = if json.hasNode: json["node"].getInt().GltfId else: GltfId(-1)
   result.path = parseEnum[AnimationChannelTargetPath]( json["path"].getStr() )
   if json.hasExtJson: result.extensions = json.get(Extension)
   if json.hasExtras:  result.extras     = json.get(Extras)
@@ -79,8 +79,8 @@ func get *(json :JsonNode; _:typedesc[Skins]) :Skins=
     if not skin.hasJoints: raise newException(ImportError, "Tried to load Skins data from a json node that doesn't have a joints field (required by spec).")
     # Get the data for this Skin
     var tmp :Skin
-    if skin.hasBindMatrices: tmp.inverseBindMatrices = skin["inverseBindMatrices"].getInt.GltfId
-    if skin.hasSkeleton:     tmp.skeleton            = skin["skeleton"].getInt.GltfId
+    tmp.inverseBindMatrices = if skin.hasBindMatrices: skin["inverseBindMatrices"].getInt.GltfId else: GltfId(-1)
+    tmp.skeleton            = if skin.hasSkeleton:     skin["skeleton"].getInt.GltfId            else: GltfId(-1)
     tmp.joints = skin["joints"].get(GltfIdList)
     if skin.hasName:    tmp.name       = skin["name"].getStr()
     if skin.hasExtJson: tmp.extensions = skin.get(Extension)
