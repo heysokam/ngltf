@@ -7,8 +7,6 @@ import std/strformat
 import std/strutils
 import std/tables
 import std/json as stdjson
-# External dependencies
-import nmath
 # ndk dependencies
 import ./tool/paths
 # ngltf dependencies

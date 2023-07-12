@@ -15,10 +15,9 @@ license       = "MIT"
 
 #_____________________________
 # Build Requirements
-requires "nim >= 1.6.12"
+requires "nim >= 1.9.5"
 requires "jsony"
 requires "flatty"
-requires "https://github.com/heysokam/nmath"
 
 
 #_____________________________

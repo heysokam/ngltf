@@ -15,3 +15,4 @@ import ./types/other     ; export other
 import ./types/sampler   ; export sampler
 import ./types/texture   ; export texture
 import ./types/base as gltfBase ; export gltfBase
+

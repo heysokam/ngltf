@@ -12,6 +12,6 @@ import std/paths as stdPaths ; export stdPaths
 proc len        *(p :Path) :int    {.borrow.}
 proc readFile   *(p :Path) :string {.borrow.}
 proc fileExists *(p :Path) :bool   {.borrow.}
-proc isFile *(input :string|Path) :bool=  input.len > 32000 or input.fileExists()
+proc isFile *(input :string|Path) :bool=  input.len < 32000 or input.fileExists()
   ## Returns true if the input is a file
 
