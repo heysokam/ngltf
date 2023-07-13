@@ -30,15 +30,16 @@ proc get *(buf :Buffer; _:typedesc[ByteBuffer]; dir :Path; chunk = ByteBuffer())
     result.bytes    = base64.decode( split[1] )
   # Get the data from the file pointed by the URI
   elif buf.uri.isFile():
-    if not fileExists( dir/buf.uri.string.Path ): raise newException(ImportError, "Tried to load Buffer data from {dir/buf.uri.string}, but the file does not exist.")
+    let path = dir / buf.uri.Path
+    if not fileExists( path ): raise newException(ImportError, &"Tried to load Buffer data from {string(path)}, but the file does not exist.")
     result.mimetype = newMimetypes().getMimetype( buf.uri.string.Path.splitFile.ext )
     result.bytes    = readFile( dir/buf.uri.string.Path )
   # Get the buffer data from the given binary chunks data.
   elif buf.uri.isChunk():
-    if chunk.bytes.len < buf.byteLength.int: raise newException(ImportError, &"Tried to load Buffer data from:\n  {buf.uri.string}\n  ...but the length of the given chunk ({chunk.bytes.len}) is less than the length declared in the buffer ({buf.byteLength}).")
+    if chunk.bytes.len < buf.byteLength.int: raise newException(ImportError, &"Tried to load Buffer data from: {buf.uri.string}, but the length of the given chunk ({chunk.bytes.len}) is less than the length declared in the buffer ({buf.byteLength}).")
     result.mimetype = MimetypeGLB
     result.bytes    = chunk.bytes[ 0..<buf.byteLength ]
-  else: raise newException(ImportError, "Tried to load Buffer data from:\n  {buf.uri.string}\n  ...but the input has an unknown or invalid URI format.")
+  else: raise newException(ImportError, &"Tried to load Buffer data from: {buf.uri.string}, but the input has an unknown or invalid URI format.")
   validate.sameLength(buf, result)
 #_______________________________________
 func getData *(buffers :Buffers; view :BufferView) :string=  buffers[ view.buffer ].data.bytes[ view.byteOffset..<view.byteOffset + view.byteLength ]

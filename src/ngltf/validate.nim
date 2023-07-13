@@ -25,29 +25,29 @@ from   ./types/binary as bin import nil
 proc validate *(header :bin.Header; length :SomeInteger) :void {.inline.}=
   ## Validates that the given header meets all of the required conditions to be a valid glTF header.
   const Magic = bin.Magic
-  if not header.magic      == bin.Magic:   raise newException(ImportError, &"\n  Tried to load a glTF file, but its Magic value ({header.magic}) does not match the glTF specification (should be {Magic}).")
-  if not header.version    == bin.Version: raise newException(ImportError, &"\n  Tried to load a glTF file, but support for version {header.version} is not implemented in ngltf.")
-  if not header.length     >  0:           raise newException(ImportError, &"\n  Tried to load a glTF file, but the length declared in its header is {header.length} and it should be bigger than 0 instead.")
-  if not header.length.int == length.int:  raise newException(ImportError, &"\n  Tried to load a glTF file, but the length declared in its header ({header.length}) does not match the given length sent for validation ({length}).")
+  if not header.magic      == bin.Magic:   raise newException(ImportError, &"Tried to load a glTF file, but its Magic value ({header.magic}) does not match the glTF specification (should be {Magic}).")
+  if not header.version    == bin.Version: raise newException(ImportError, &"Tried to load a glTF file, but support for version {header.version} is not implemented in ngltf.")
+  if not header.length     >  0:           raise newException(ImportError, &"Tried to load a glTF file, but the length declared in its header is {header.length} and it should be bigger than 0 instead.")
+  if not header.length.int == length.int:  raise newException(ImportError, &"Tried to load a glTF file, but the length declared in its header ({header.length}) does not match the given length sent for validation ({length}).")
 #_____________________________
 proc validate *(gltf :JsonNode) :void {.inline.}=
   ## Validates that the given json node contains the fields required to be a valid glTF json object.
   ## Checks that the json has an "asset" and "asset/version" keys, and that the contained version is compatible with ngltf.
-  if not gltf.hasKey("asset"):            raise newException(ImportError, "\n  Tried to load a glTF json file, but the given json doesn't have an asset field (required by spec).")
-  if not gltf["asset"].hasKey("version"): raise newException(ImportError, "\n  Tried to load a glTF json file, but the given json doesn't have a version field (required by spec).")
+  if not gltf.hasKey("asset"):            raise newException(ImportError, "Tried to load a glTF json file, but the given json doesn't have an asset field (required by spec).")
+  if not gltf["asset"].hasKey("version"): raise newException(ImportError, "Tried to load a glTF json file, but the given json doesn't have a version field (required by spec).")
   if not (gltf["asset"]["version"].getStr.parseFloat() == bin.Version.float):
-    raise newException(ImportError, &"\n  Tried to load a glTF json file, but the given node contains an invalid version.")
+    raise newException(ImportError, &"Tried to load a glTF json file, but the given node contains an invalid version.")
 #_____________________________
 proc validate *(chunk :Chunk) :void {.inline.}=
   ## Validates that the given input chunk is valid.
-  if not chunk.length.int == chunk.data.len: raise newException(ImportError, "\n  Tried to load a Chunk from a GLB binary, but its resulting length is different than the one declared in its chunkLength field.")
+  if not chunk.length.int == chunk.data.len: raise newException(ImportError, "Tried to load a Chunk from a GLB binary, but its resulting length is different than the one declared in its chunkLength field.")
 #_____________________________
 proc chunkIDjson *(id :SomeInteger) :void {.inline.}=
   ## Checks that the given id correctly identifies a GltfJson chunk.
-  if not id.uint32 == bin.ChunkIDjson: raise newException(ImportError, &"\n  Tried to load a glTF binary file, but the json chunk id {id} is incorrect (should be {ChunkIDjson})")
+  if not id.uint32 == bin.ChunkIDjson: raise newException(ImportError, &"Tried to load a glTF binary file, but the json chunk id {id} is incorrect (should be {ChunkIDjson})")
 proc chunkIDdata *(id :SomeInteger) :void {.inline.}=
   ## Checks that the given id correctly identifies a GltfData chunk.
-  if not id.uint32 == bin.ChunkIDdata: raise newException(ImportError, &"\n  Tried to load a glTF binary file, but the data chunk id {id} is incorrect (should be {ChunkIDdata})")
+  if not id.uint32 == bin.ChunkIDdata: raise newException(ImportError, &"Tried to load a glTF binary file, but the data chunk id {id} is incorrect (should be {ChunkIDdata})")
 #_____________________________
 func isData  *(uri :URI) :bool=  uri.string.startsWith("data:")
   ## Checks if the given uri string is pointing to a data container.
@@ -58,7 +58,7 @@ func isChunk *(uri :URI) :bool=  uri == UriBufferGLB
 #_____________________________
 proc isGLTF *(path :Path) :void=
   ## Checks that the given path contains a valid gltf file.
-  if not (path.splitFile.ext in ValidGltfFileExtensions): raise newException(ImportError, &"\n  Tried to load glTF from file {path.string}, but it has an incorrect extension (valid options {ValidGltfFileExtensions}).")
+  if not (path.splitFile.ext in ValidGltfFileExtensions): raise newException(ImportError, &"Tried to load glTF from file {path.string}, but it has an incorrect extension (valid options {ValidGltfFileExtensions}).")
 
 #_________________________________________________
 # Buffer
@@ -67,12 +67,12 @@ func areSameLength *(buf :Buffer; bbuf :ByteBuffer) :bool=  buf.byteLength == bb
   ## Returns true if the `buf` Buffer has the same length as the `bbuf` ByteBuffer
 func sameLength *(buf :Buffer; bbuf :ByteBuffer) :void=
   ## Checks that the `buf` Buffer has the same length as the `bbuf` ByteBuffer
-  if not areSameLength(buf, bbuf): raise newException(ImportError, "Tried to load Buffer data from {buf.uri}\n  ...but the resulting bytebuffer has a length ({buf.byteLength}) different than the one declared in the input Buffer object ({bbuf.bytes.len}).")
+  if not areSameLength(buf, bbuf): raise newException(ImportError, &"Tried to load Buffer data from {string buf.uri}, but the resulting bytebuffer has a length ({buf.byteLength}) different than the one declared in the input Buffer object ({bbuf.bytes.len}).")
 func sameLength *(bbuf :ByteBuffer; buf :Buffer) :void=  sameLength( buf, bbuf )
   ## Checks that the `buf` Buffer has the same length as the `bbuf` ByteBuffer
 func sameLength *(acc :Accessor; view :BufferView) :void=
   ## Checks that the given `acc` Accessor defines data that has the same size than the data contained in the buffer portion pointed by the given `view` BufferView.
-  if not (acc.size == view.byteLength):  raise newException(ImportError, &"\n  Tried to access a BufferView from an Accessor that defines data of a size ({acc.size()}) which does not match the bufferView.byteLength ({view.byteLength}).")
+  if not (acc.size == view.byteLength):  raise newException(ImportError, &"Tried to access a BufferView from an Accessor that defines data of a size ({acc.size()}) which does not match the bufferView.byteLength ({view.byteLength}).")
 func sameLength *(view :BufferView; acc :Accessor) :void=  sameLength( acc, view )
   ## Checks that the given `acc` Accessor defines data that has the same size than the data contained in the buffer portion pointed by the given `view` BufferView.
 
@@ -95,9 +95,9 @@ func hasAttr *(meshes :Meshes; key :MeshAttribute) :bool=
   return true
 #_____________________________
 func hasPositions *(mesh :Mesh)  :void=
-  if not mesh.hasAttr( MeshAttribute.pos ): raise newException(ImportError, "\n  Tried to load a Mesh (spec.MeshPrimtive) that has no vertex position information.")
+  if not mesh.hasAttr( MeshAttribute.pos ): raise newException(ImportError, "Tried to load a Mesh (spec.MeshPrimtive) that has no vertex position information.")
 func hasPositions *(mdl  :Model) :void=
-  if not mdl.meshes.hasAttr( MeshAttribute.pos ): raise newException(ImportError, "\n  Tried to load a Model (spec.Mesh) that has no vertex position information in one or more of its meshes (spec.primitives).")
+  if not mdl.meshes.hasAttr( MeshAttribute.pos ): raise newException(ImportError, "Tried to load a Model (spec.Mesh) that has no vertex position information in one or more of its meshes (spec.primitives).")
 #_____________________________
 func hasUVs       *(mdl  :Model) :bool=  mdl.meshes.hasAttr( MeshAttribute.uv )
 func hasUVs       *(mesh :Mesh)  :bool=  mesh.hasAttr( MeshAttribute.uv )
