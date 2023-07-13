@@ -3,8 +3,8 @@
 `ngltf` is a pure Nim reader implementation for the glTF™ file specification.  
 glTF™ is an efficient, extensible and publishing format for transmission and loading of 3D scenes and models for engines and applications.  
 
-This library is a raw reader.  
-Consider using @[heysokam/nimp](https://github.com/heysokam/nimp) if you prefer a more ergonomic and simple to use API.  
+This library is a raw reader with no dependencies.  
+Consider using @[heysokam/nimp](https://github.com/heysokam/nimp) for a more ergonomic and simple to use API.  
 
 ## How to use
 ```nim
@@ -33,10 +33,6 @@ Said file is not maintained, and is kept only as a reference.
 A complete implementation needs to depend on an image loader and a math library.  
 Said dependencies are purposedly kept away from this raw reader,  
 and are implemented in the @[heysokam/nimp](https://github.com/heysokam/nimp) abstraction instead.  
-
-## Dependencies:
-- `treeform/jsony`  for `toJson` for simple json nodes without an explicit type (std/json doesn't support it)  
-- `treeform/flatty` for reading binary information from `.glb` files.  
 
 ## Internal
 ```md

@@ -35,9 +35,9 @@ proc loadMem *(buffer :string; dir :Path= getAppDir().Path) :GLTF=
 
 #_____________________________________________________
 proc load *(file :Path) :GLTF=  file.loadFile()
-  ## Loads a gltf file and returns the specified type of Data object.
+  ## Loads a gltf file and returns a GLTF object.
 proc load *(input :string; dir = getAppDir().Path) :GLTF=
-  ## Smart load a gltf file and returns the specified type of Data object.
+  ## Smart load a gltf file and returns a GLTF object.
   ## Reads it as a file if it exists, or as a bytebuffer if it doesn't.
   ## When the input is a bytebuffer, the data must be self-contained, and not reference any external resources in its buffers.
   ##   eg: Having an URI to load an image not stored in the given glb buffer is not allowed with this function.

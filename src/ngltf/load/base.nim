@@ -6,21 +6,19 @@
 # std dependencies
 import std/tables
 import std/json as stdjson
-# External dependencies
-import pkg/jsony
 # ngltf dependencies
 import ../types/base
 
 
 #_______________________________________
-func get *(json :JsonNode; _:typedesc[Extension]) :Extension=  json["extensions"].toJson.Extension
+func get *(json :JsonNode; _:typedesc[Extension]) :Extension=  Extension $json["extensions"]
   ## Returns the Extension data contained in the given json node.
-func get *(json :JsonNode; _:typedesc[Extras]) :Extras=  json["extras"].toJson.Extras
+func get *(json :JsonNode; _:typedesc[Extras]) :Extras=  Extras $json["extras"]
   ## Returns the Extras data contained in the given json node.
 #_______________________________________
 func get *(json :JsonNode; _:typedesc[JsonStringList]) :JsonStringList=
   ## Returns the list of JsonString objects contained in the given json node.
-  for obj in json.elems: result.add obj.toJson
+  for obj in json.elems: result.add $obj
 #_______________________________________
 func get *(json :JsonNode; _:typedesc[GltfIdList]) :GltfIdList=
   ## Returns the list of GltfIds contained in the given json node.

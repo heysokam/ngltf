@@ -16,8 +16,6 @@ license       = "MIT"
 #_____________________________
 # Build Requirements
 requires "nim >= 1.9.5"
-requires "jsony"
-requires "flatty"
 
 
 #_____________________________
@@ -25,6 +23,11 @@ requires "flatty"
 srcDir         = "src"
 binDir         = "bin"
 let cacheDir   = binDir/"nimcache"
+
+#_______________________________________
+# Tasks
+#_____________________________
+#[ DEPRECATED
 let genDir     = "gen"
 let refDir     = "ref"
 let gltfDir    = refDir/"gltf"
@@ -34,11 +37,6 @@ let schemaTrg  = genDir/"schema"
 let schemaFile = schemaDir/"glTF.schema.json"
 let j2nim      = binDir/"j2nim"
 let j2nimSrc   = srcDir/packageName/"j2nim"
-
-
-#_______________________________________
-# Tasks
-#_____________________________
 # Configuration
 let verbose   = on
 
@@ -59,4 +57,5 @@ task gen, "Internal: Generates the gltf Json objects from the downloaded schema.
   cpDir schemaDir, schemaTrg
   compile j2nimSrc
   exec &"{j2nim.absolutePath()} \"{schemaFile}\""
+]#
 

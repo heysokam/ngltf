@@ -4,8 +4,6 @@
 # std dependencies
 import std/strformat
 import std/json as stdjson
-# External dependencies
-import pkg/flatty/binny
 # ngltf dependencies
 import ../types
 import ../types/base
@@ -14,6 +12,13 @@ import ../tool/paths
 import ../validate
 import ./buffer
 import ./texture
+
+
+#_____________________________________________________
+# treeform/binny dependencies
+func readUint32 *(s :string; i :int)   :uint32 {.inline.}=  copyMem(result.addr, s[i].unsafeAddr, 4)
+func readStr    *(s :string; i,v :int) :string {.inline.}=  s[i ..< min(s.len, i + v)]
+#_____________________________________________________
 
 
 #_____________________________________________________
