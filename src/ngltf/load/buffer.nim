@@ -30,9 +30,9 @@ proc get *(buf :Buffer; _:typedesc[ByteBuffer]; dir :Path; chunk = ByteBuffer())
     result.bytes    = base64.decode( split[1] )
   # Get the data from the file pointed by the URI
   elif buf.uri.isFile():
-    if not fileExists( dir/buf.uri.string.Path ): raise newException(ImportError, &"Tried to load Buffer data from {dir/buf.uri.string}, but the file does not exist.")
-    result.mimetype = newMimetypes().getMimetype( buf.uri.string.Path.splitFile.ext )
-    result.bytes    = readFile( dir/buf.uri.string.Path )
+    if not fileExists( dir/buf.uri.Path ): raise newException(ImportError, &"Tried to load Buffer data from {string(dir/buf.uri.Path)}, but the file does not exist.")
+    result.mimetype = newMimetypes().getMimetype( buf.uri.Path.splitFile.ext )
+    result.bytes    = readFile( dir/buf.uri.Path )
   # Get the buffer data from the given binary chunks data.
   elif buf.uri.isChunk():
     if chunk.bytes.len < buf.byteLength.int: raise newException(ImportError, &"Tried to load Buffer data from:  {buf.uri.string}  but the length of the given chunk ({chunk.bytes.len}) is less than the length declared in the buffer ({buf.byteLength}).")

@@ -244,8 +244,8 @@ func getMaterial  *(gltf :GLTF; mesh :Mesh) :MaterialData=   discard # mesh.mate
 func getData *(gltf :GLTF; mesh :Mesh; name :string) :MeshData=
   ## Converts the given mesh into a MeshData object.
   new result
-  onlyTriangles( mesh )
-  validate.hasPositions( mesh )
+  data.onlyTriangles( mesh )
+  data.hasPositions( mesh )
   result.primitives = Triangles
   result.name       = name
   result.pos        = gltf.getPositions(mesh)
