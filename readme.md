@@ -28,7 +28,7 @@ Supports:
 - Binary:   `.glb`
 - Extensions: See the extensions section
 
-An example of how the data contained in the gltf object could be accessed can be seen @[nimp/mdl.nim](https://github.com/heysokam/nimp/src/nimp/mdl.nim).  
+An example of how the data contained in the gltf object could be accessed can be seen @[nimp/mdl.nim](https://github.com/heysokam/nimp/blob/master/src/nimp/mdl.nim).  
 
 A complete implementation needs to depend on an image loader and a math library.  
 Dependencies are purposedly kept away from this library,  
@@ -47,7 +47,7 @@ The glTF™ specification is created such that the buffers contained in the file
 The URI-pointed `Image`s pixel data is loaded into the `GLTF.images[N].data` extension field of each image entry _(the spec supports png and jpeg)_.  
 And the `.bin` and `.glb` buffer data is loaded into the `GLTF.buffers[N].data` extension field of each buffer entry.  
 
-For an example of how this data is used in practice, see the implementation @[nimp/mdl.nim](https://github.com/heysokam/nimp/src/nimp/mdl.nim) and @[nimp/scn.nim](https://github.com/heysokam/nimp/src/nimp/scn.nim).
+For an example of how this data is used in practice, see the implementation @[nimp/mdl.nim](https://github.com/heysokam/nimp/blob/master/src/nimp/mdl.nim) and @[nimp/scn.nim](https://github.com/heysokam/nimp/blob/master/src/nimp/scn.nim).
 
 ## Internal
 ```md
@@ -90,7 +90,7 @@ You should be able to use the information contained in the GLTF.extensions field
 
 #### Draco Compression
 `KHR_draco_mesh_compression`
-Draco compression is currently not supported.  
+[Draco compression](https://google.github.io/draco/spec/) is currently not supported.  
 The existing decoding implementation is written for usage from C++ code,  
 so will need to figure out a way around it to make it usable from Nim.  
 
