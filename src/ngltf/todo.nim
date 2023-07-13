@@ -1,4 +1,9 @@
 #_________________________________________________
+# Lights:
+#_______________________________________
+# https://github.com/KhronosGroup/glTF/tree/main/extensions/2.0/Khronos/KHR_lights_punctual
+
+#_________________________________________________
 # Accessor : Data Validation
 #_______________________________________
 # AccessorSparseIndices : Number of AccessorSparseIndices is equal to AccessorSparse.count

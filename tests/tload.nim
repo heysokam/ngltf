@@ -18,9 +18,9 @@ const resDir = currentSourcePath().parentDir()/"res"
 #_______________________________________
 const bottleFile = resDir/"bottle/bottle.gltf"
 test &"loadFile {bottleFile}":
-  let mdl = data.load(bottleFile, ModelData, verbose=true)
+  let mdl = data.load(bottleFile, ModelData)
 #_______________________________________
 const spheresFile = resDir/"mrSpheres/MetalRoughSpheres.gltf"
 test &"loadFile {spheresFile}":
-  let gltf = ngltf.load(spheresFile, verbose=true)
+  let gltf = ngltf.load(spheresFile)
 

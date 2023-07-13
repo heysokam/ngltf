@@ -7,7 +7,7 @@ import std/strformat
 #_____________________________
 # Package
 packageName   = "ngltf"
-version       = "0.0.0"
+version       = "0.0.1"
 author        = "sOkam"
 description   = "GLTF for Nim"
 license       = "MIT"

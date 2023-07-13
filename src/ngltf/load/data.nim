@@ -6,6 +6,7 @@ import std/os
 import std/strformat
 import std/tables
 # ngltf dependencies
+import ../types/base
 import ../types/accessor
 import ../types/buffer
 import ../types/mesh
@@ -115,6 +116,29 @@ type SomeData * = ModelData | SceneData
 #_____________________________________________________
 # Procs
 #_______________________________________
+# Validation
+#_____________________________
+func onlyTriangles *(mesh :Mesh) :void=
+  ## Checks that the given primitive contains Triangles. Raises an ImportError exception otherwise
+  ## ngltf does not support non-Triangle data for Data objects.
+  ## If you need other types of primitives, get the raw glTF object from the internal functions and extract the information from there.
+  if not (mesh.mode == MeshType.Triangles): raise newException(ImportError, &"""\n
+  Tried to get MeshData from a Mesh that contains non-Triangle primitives.
+  ngltf does not support non-Triangle data.
+  Get the raw gltf object and extract its contents directly if you need other types of primitives.""")
+#_____________________________
+func onlyTriangles *(mdl :Model) :void=
+  ## Checks that all of the meshes in the given list contain only Triangles. Raises an ImportError exception otherwise.
+  ## ngltf does not support non-Triangle data for Data objects.
+  ## If you need other types of primitives, get the raw glTF object from the internal functions and extract the information from there.
+  for mesh in mdl.meshes: mesh.onlyTriangles()
+#_____________________________
+func hasPositions *(mesh :Mesh)  :void=
+  if not mesh.hasAttr( MeshAttribute.pos ): raise newException(ImportError, "Tried to load a Mesh (spec.MeshPrimtive) that has no vertex position information.")
+func hasPositions *(mdl  :Model) :void=
+  for mesh in mdl.meshes:
+    if not mesh.hasAttr( MeshAttribute.pos ): raise newException(ImportError, "Tried to load a Model (spec.Mesh) that has no vertex position information in one or more of its meshes (spec.primitives).")
+#_______________________________________
 # Buffer: Data Access
 #_____________________________
 func get *[T :typedesc[SomeIntermediate]](buf :Buffer; t :T; accs :Accessor; view :BufferView; id :SomeInteger) :t=
@@ -220,7 +244,7 @@ func getMaterial  *(gltf :GLTF; mesh :Mesh) :MaterialData=   discard # mesh.mate
 func getData *(gltf :GLTF; mesh :Mesh; name :string) :MeshData=
   ## Converts the given mesh into a MeshData object.
   new result
-  validate.onlyTriangles( mesh )
+  onlyTriangles( mesh )
   validate.hasPositions( mesh )
   result.primitives = Triangles
   result.name       = name

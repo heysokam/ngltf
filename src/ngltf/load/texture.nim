@@ -29,7 +29,7 @@ proc get *(img :Image; _:typedesc[ByteBuffer]; dir :Path; gltf :GLTF) :ByteBuffe
     let view        = gltf.bufferViews[ img.bufferView ]
     result.bytes    = gltf.buffers.getData(view)
     result.mimetype = img.uri.string
-    if not validate.areSameLength(gltf.buffers[view.buffer], result): raise newException(ImportError, "Tried to load Image data from {img.uri.string}\n  ...but the resulting bytebuffer has a length different than the one declared in the input Image object.")
+    if not validate.areSameLength(gltf.buffers[view.buffer], result): raise newException(ImportError, &"Tried to load Image data from {img.uri.string}, but the resulting bytebuffer has a length different than the one declared in the input Image object.")
   # Get the data from the base64 uri
   elif img.uri.isData():
     let split       = img.uri.string.split(";base64,")
@@ -37,11 +37,11 @@ proc get *(img :Image; _:typedesc[ByteBuffer]; dir :Path; gltf :GLTF) :ByteBuffe
     result.bytes    = base64.decode( split[1] )
   # Get the data from the file
   elif img.uri.isFile():
-    if not fileExists( dir/img.uri.string.Path ): raise newException(ImportError, "Tried to load Image data from {dir/img.uri.string}, but the file does not exist.")
+    if not fileExists( dir/img.uri.string.Path ): raise newException(ImportError, &"Tried to load Image data from {dir/img.uri.string}, but the file does not exist.")
     result.mimetype = newMimetypes().getMimetype( img.uri.string.Path.splitFile.ext )
     result.bytes    = readFile( dir/img.uri.string.Path )
   # Data couldn't be found
-  else: raise newException(ImportError, "Tried to load Image data from:\n  {img.uri.string}\n  ...but the input has an unknown or invalid URI format.")
+  else: raise newException(ImportError, &"Tried to load Image data from:  {img.uri.string}  but the input has an unknown or invalid URI format.")
 
 
 #_______________________________________
