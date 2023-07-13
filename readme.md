@@ -1,6 +1,6 @@
 ![ngltf](./doc/res/gh_banner.png)
 # Pure Nim glTF™ Reader
-`ngltf` is a pure Nim reader implementation for the glTF file specification.  
+`ngltf` is a pure Nim reader implementation for the glTF™ file specification.  
 glTF™ is an efficient, extensible and publishing format for transmission and loading of 3D scenes and models for engines and applications.  
 
 This library is a raw reader.  
@@ -36,15 +36,19 @@ and are implemented in the @[heysokam/nimp](https://github.com/heysokam/nimp) ab
 
 ## Dependencies:
 - `treeform/jsony`  for `toJson` for simple json nodes without an explicit type (std/json doesn't support it)  
-- `treeform/flatty` for reading binary information from `.glb` and `.bin` data.  
+- `treeform/flatty` for reading binary information from `.glb` files.  
 
-## Spec Concepts Renames and Extensions
-- Model    : spec.Mesh  
-- Mesh     : spec.MeshPrimitive  
-- MeshType : spec.MeshPrimitiveMode  
-- Buffer   : Contains a bytebuffer with its corresponding `.bin` or `.glb` data buffers already loaded into memory.  
-- SceneID  : spec.scene (singular). Renamed to clarify what it really is (root scene id).  
+## Internal
+```md
+# Spec Renames
+- Model    : spec.Mesh
+- Mesh     : spec.MeshPrimitive
+- MeshType : spec.MeshPrimitiveMode
+- SceneID  : spec.scene (singular). Renamed to clarify what it really is (root scene id).
+# Spec Extensions
+- Buffer   : Contains a bytebuffer with its corresponding `.bin` or `.glb` data buffers already loaded into memory.
+- Image    : Contains a bytebuffer with its corresponding `.png` or `.jpg` data buffers already loaded into memory.
+```
 
-## License
-| MIT | Copyright (C) Ivan Mar (sOkam!)  
+**License:**  MIT  |  Copyright (C) Ivan Mar (sOkam!)
 
