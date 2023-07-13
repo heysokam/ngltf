@@ -27,11 +27,10 @@ Supports:
 - `.gltf` embedded (base64)
 - `.glb`
 
-An example of how the data contained in the gltf object could be accessed can be seen @[load/data.nim](src/ngltf/load/data.nim).  
-Said file is not maintained, and is kept only as a reference.  
+An example of how the data contained in the gltf object could be accessed can be seen @[nimp/mdl.nim](https://github.com/heysokam/nimp/src/nimp/mdl.nim).  
 
 A complete implementation needs to depend on an image loader and a math library.  
-Said dependencies are purposedly kept away from this raw reader,  
+Dependencies are purposedly kept away from this raw reader,  
 and are implemented in the @[heysokam/nimp](https://github.com/heysokam/nimp) abstraction instead.  
 
 ## Internal
