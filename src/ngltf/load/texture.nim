@@ -38,7 +38,7 @@ proc get *(img :Image; _:typedesc[ByteBuffer]; dir :Path; gltf :GLTF) :ByteBuffe
   # Get the data from the file
   elif img.uri.isFile():
     if not fileExists( dir/img.uri.Path ): raise newException(ImportError, &"Tried to load Image data from {string(dir/img.uri.Path)}, but the file does not exist.")
-    result.mimetype = newMimetypes().getMimetype( img.uri.Path.splitFile.ext )
+    result.mimetype = newMimetypes().getMimetype( paths.splitFile(img.uri.Path).ext )
     result.bytes    = readFile( dir/img.uri.Path )
   # Data couldn't be found
   else: raise newException(ImportError, &"Tried to load Image data from:  {img.uri.string}  but the input has an unknown or invalid URI format.")

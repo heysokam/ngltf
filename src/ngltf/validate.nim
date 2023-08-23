@@ -7,9 +7,9 @@ import std/strformat
 import std/strutils
 import std/tables
 import std/json as stdjson
-# ndk dependencies
-import ./tool/paths
-# ngltf dependencies
+# n*dk dependencies
+import ./tool/paths as pths
+# n*gltf dependencies
 import ./types
 import ./types/base
 import ./types/buffer
@@ -58,7 +58,7 @@ func isChunk *(uri :URI) :bool=  uri == UriBufferGLB
 #_____________________________
 proc isGLTF *(path :Path) :void=
   ## Checks that the given path contains a valid gltf file.
-  if not (path.splitFile.ext in ValidGltfFileExtensions): raise newException(ImportError, &"Tried to load glTF from file {path.string}, but it has an incorrect extension (valid options {ValidGltfFileExtensions}).")
+  if not (pths.splitFile(path).ext in ValidGltfFileExtensions): raise newException(ImportError, &"Tried to load glTF from file {path.string}, but it has an incorrect extension (valid options {ValidGltfFileExtensions}).")
 
 #_________________________________________________
 # Buffer

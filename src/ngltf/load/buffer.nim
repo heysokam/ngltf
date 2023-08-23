@@ -31,7 +31,7 @@ proc get *(buf :Buffer; _:typedesc[ByteBuffer]; dir :Path; chunk = ByteBuffer())
   # Get the data from the file pointed by the URI
   elif buf.uri.isFile():
     if not fileExists( dir/buf.uri.Path ): raise newException(ImportError, &"Tried to load Buffer data from {string(dir/buf.uri.Path)}, but the file does not exist.")
-    result.mimetype = newMimetypes().getMimetype( buf.uri.Path.splitFile.ext )
+    result.mimetype = newMimetypes().getMimetype( paths.splitFile(buf.uri.Path).ext )
     result.bytes    = readFile( dir/buf.uri.Path )
   # Get the buffer data from the given binary chunks data.
   elif buf.uri.isChunk():

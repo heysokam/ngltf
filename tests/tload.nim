@@ -5,9 +5,8 @@
 import std/unittest
 import std/os
 import std/strformat
-# Library dependencies
+# n*gltf dependencies
 import ngltf
-import ngltf/load/data
 
 #_______________________________________
 # Config
@@ -18,7 +17,7 @@ const resDir = currentSourcePath().parentDir()/"res"
 #_______________________________________
 const bottleFile = resDir/"bottle/bottle.gltf"
 test &"loadFile {bottleFile}":
-  let mdl = data.load(bottleFile, ModelData)
+  let gltf = ngltf.load(bottleFile)
 #_______________________________________
 const spheresFile = resDir/"mrSpheres/MetalRoughSpheres.gltf"
 test &"loadFile {spheresFile}":

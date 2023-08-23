@@ -1,21 +1,20 @@
 #:_____________________________________________________
 #  ngltf  |  Copyright (C) Ivan Mar (sOkam!)  |  MIT  |
 #:_____________________________________________________
-import std/os
-import std/strformat
+import std/[ os,strformat ]
 
 #_____________________________
 # Package
 packageName   = "ngltf"
-version       = "0.0.1"
+version       = "0.1.0"
 author        = "sOkam"
-description   = "GLTF for Nim"
+description   = "n*glTF | Pure Nim glTF™ Reader"
 license       = "MIT"
 
 
 #_____________________________
 # Build Requirements
-requires "nim >= 1.9.5"
+requires "nim >= 2.0.0"
 
 
 #_____________________________
