@@ -1,5 +1,5 @@
 #:_____________________________________________________
-#  ngltf  |  Copyright (C) Ivan Mar (sOkam!)  |  MIT  |
+#  ngltf  |  Copyright (C) Ivan Mar (sOkam!)  |  MIT  :
 #:_____________________________________________________
 # Not intended for general use at all.                 |________
 # Helper for generating the Nim types from the gltf spec.       |

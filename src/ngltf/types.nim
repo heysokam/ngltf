@@ -1,8 +1,6 @@
 #:_____________________________________________________
-#  ngltf  |  Copyright (C) Ivan Mar (sOkam!)  |  MIT  |
+#  ngltf  |  Copyright (C) Ivan Mar (sOkam!)  |  MIT  :
 #:_____________________________________________________
-
-
 # Cable connectors to all type declaration modules
 import ./types/gltf      ; export gltf
 import ./types/accessor  ; export accessor
@@ -15,4 +13,3 @@ import ./types/other     ; export other
 import ./types/sampler   ; export sampler
 import ./types/texture   ; export texture
 import ./types/base as gltfBase ; export gltfBase
-

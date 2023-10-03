@@ -1,5 +1,5 @@
 #:_____________________________________________________
-#  ngltf  |  Copyright (C) Ivan Mar (sOkam!)  |  MIT  |
+#  ngltf  |  Copyright (C) Ivan Mar (sOkam!)  |  MIT  :
 #:_____________________________________________________
 # Base properties loaded by all modules.  |
 #_________________________________________|

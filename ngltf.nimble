@@ -1,12 +1,12 @@
 #:_____________________________________________________
-#  ngltf  |  Copyright (C) Ivan Mar (sOkam!)  |  MIT  |
+#  ngltf  |  Copyright (C) Ivan Mar (sOkam!)  |  MIT  :
 #:_____________________________________________________
 import std/[ os,strformat ]
 
 #_____________________________
 # Package
 packageName   = "ngltf"
-version       = "0.1.0"
+version       = "0.1.1"
 author        = "sOkam"
 description   = "n*glTF | Pure Nim glTF™ Reader"
 license       = "MIT"

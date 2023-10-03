@@ -1,10 +1,11 @@
 #:_____________________________________________________
-#  ngltf  |  Copyright (C) Ivan Mar (sOkam!)  |  MIT  |
+#  ngltf  |  Copyright (C) Ivan Mar (sOkam!)  |  MIT  :
 #:_____________________________________________________
 # std dependencies
 import std/os
 import std/strformat
-# ndk dependencies
+import std/strutils
+# n*dk dependencies
 import ./tool/paths
 # ngltf dependencies
 import ./types
@@ -43,6 +44,8 @@ proc load *(input :string; dir = getAppDir().Path) :GLTF=
   ##   eg: Having an URI to load an image not stored in the given glb buffer is not allowed with this function.
   ##       If this limitation is ignored, external files will be searched relative to the main application binary location, unless specified otherwise.
   ##       This default path will most likely be incorrect, and lead to an application crash if the glb file does actually reference external files.
+  if (input.endsWith(".gltf") or input.endsWith(".glb")) and not input.fileExists(): raise newException(IOError,
+    &"Tried to load a gltf from {input}, but the file does not exist.")
   if input.isFile(): Path(input).loadFile()
   else:              input.loadMem( dir )
 
